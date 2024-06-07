@@ -1,0 +1,41 @@
+---
+name: LR
+surname: Friberg
+position: "Music Producer, Mastering Engineer"
+date: "`r format(Sys.time(), '%B %Y')`"
+output: vitae::hyndman
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(vitae)
+```
+
+# Formal Education
+
+```{r}
+library(tibble)
+tribble(
+  ~ Course, ~ Institution,
+  "Music Theory", "Linnaeus University",
+  "Sound Synthesis", "Blekinge Institute of Technology",
+) %>% 
+  detailed_entries(what = Course, with = Institution)
+```
+
+# Work
+
+```{r}
+tribble(
+  ~Year, ~Type, ~Desc,
+  "2019-2021", "Nova Beat Estate / LCD Soundhouse", "",
+  "2013-2019", "Hiatus", "While taking a break to care for my late life partner J.D. Wolbers in Sweden, I managed to perform a live set at Noden in Stockholm in 2017. Additionally, in 2016, I worked as a screenwriter for a film directed by Alicja Slawinska.\\newline \\phantom{a}",
+  "2006-2012", "Nova Beat Estate / LCD Soundhouse", "I ran the record label Nova Beat Estate with Alex Rahner, releasing 17 albums by diverse artists. We organized three open-air music festivals called Dust Horizon in eastern Cyprus from 2008 to 2010. During the years 2008 to 2012, I provided audio mixing and mastering services under the name LCD Soundhouse. Additionally, from 2009 to 2013, I offered freelance graphic design services. I also produced one album, two EPs, and a demo under the name Dawnbreaker; co-produced four albums with the psytrance band RAINE and eight albums with the avantgarde band Tuatha. And, between 2009 and 2013, I worked with Canadian author Mel Higgins under the name Dream Aid, creating poetry and short stories that blended elements of fantasy, sci-fi, and horror. For more information, you can find additional details in the audiobook Reclaiming The Truth.\\newline \\phantom{a}"
+) %>% 
+  brief_entries(
+    Type,
+    Year, 
+    Desc, .protect = FALSE
+  )
+```
+

@@ -1,0 +1,144 @@
+---
+title: "Outreach"
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      bg: "#FFFFFF"
+      fg: "#000000" 
+      primary: "#000000"
+      base_font:
+        google: Prompt
+      code_font:
+        google: JetBrains Mono
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(mapview)
+library(leaflet)
+library(sf)
+library(tidyverse)
+library(geodata)
+library(RColorBrewer)
+
+thematic::thematic_rmd()
+
+# Solo album count
+SoloAlbums <- 1
+
+# Function for processing the compilations sheet
+compilationsProcess <- function(df) {
+  dfOut <- rbind(
+    cbind(df$artist1, df$country1),
+    cbind(df$artist2, df$country2),
+    cbind(df$artist3, df$country3),
+    cbind(df$artist4, df$country4),
+    cbind(df$artist5, df$country5),
+    cbind(df$artist6, df$country6),
+    cbind(df$artist7, df$country7)
+  ) %>%
+    na.omit() %>%
+    as.data.frame()
+  colnames(dfOut) <- c("artist", "country")
+  dfOut <- table(dfOut$country) %>% as.data.frame()
+  return(dfOut)
+}
+
+# Function for loading count data
+loadCountData <- function(filename, sheet, geometry, isComp = FALSE) {
+  dfOut <- readxl::read_excel(path = filename, sheet = sheet)
+  if(isComp == FALSE) {
+    dfOut <- table(dfOut$country) %>% as.data.frame()
+  } else {
+    dfOut <- compilationsProcess(dfOut)
+  }
+  colnames(dfOut) <- c("country", "count")
+  dfOut <- inner_join(geometry, dfOut, by = "country")
+  return(dfOut)
+}
+
+# Function for loading spatial data
+loadSpatData <- function(filename, sheet, crs = 4269) {
+  dfOut <- readxl::read_excel(path = filename, sheet = sheet)
+  dfOut <- sf::st_as_sf(dfOut, 
+                       coords = c("longitude", "latitude"),
+                       crs = crs) 
+  return(dfOut)
+}
+```
+
+Column {data-width=650 .tabset}
+-----------------------------------------------------------------------
+
+### World Map
+
+```{r}
+# Load the geometry
+Outreach <- geodata::world(path = tempdir())
+Outreach <- sf::st_as_sf(Outreach)
+Outreach <- Outreach %>% select(NAME_0, geometry)
+colnames(Outreach) <- c("country", "geometry")
+
+# Load count data (Collaborations, Label, Compilations)
+Collaborations <- loadCountData("database.xlsx", "Collaborations", Outreach)
+Label <- loadCountData("database.xlsx", "Label", Outreach)
+Compilations <- loadCountData("database.xlsx", "Compilations", Outreach, isComp = TRUE)
+
+# Load spatial data (Travel, Artists, Photos)
+Travel <- loadSpatData("database.xlsx", "Travel")
+Artists <- loadSpatData("database.xlsx", "Artists")
+Photos <- loadSpatData("database.xlsx", "Photos")
+
+# Add IA embeds to Travel
+url_list_t <- as.list(Travel$url)
+popup_iframe_t <- lapply(url_list_t, leafpop:::popupIframe, width = 500, height = 30)
+
+# Add embeds to Photos
+url_list_p <- as.list(Photos$url)
+popup_iframe_p <- lapply(url_list_p, leafpop:::popupIframe, width = 255, height = 414)
+
+# Show maps
+mapview(Artists, col.regions = "orange", legend = TRUE, layer.name = "Artist Locations",
+          homebutton = FALSE, label = "Artist Location", map.types = "CartoDB.Positron",
+          popup = leafpop::popupTable(Artists, zcol = c("artist", "description", "url"),
+                                               feature.id = FALSE, row.numbers = FALSE)) +
+   mapview(Photos, popup = popup_iframe_p, col.regions = "yellow", legend = TRUE, 
+          homebutton = FALSE, layer.name = "Cities Visited (Photos)", 
+          label = "City Visited (Photos)") +
+    
+   mapview(Travel, popup = popup_iframe_t, col.regions = "lightblue", legend = TRUE, 
+          homebutton = FALSE, layer.name = "Cities Visited (Sounds)", 
+          label = "City Visited (Sounds)") +
+  
+   mapview(Label, zcol = c("count"), col.regions = brewer.pal(1, "YlGn"), 
+           legend = FALSE, layer.name = "Label Releases", homebutton = FALSE, 
+           label = "Label Releases",
+           popup = leafpop::popupTable(Label, zcol = c("count"),
+                                                       feature.id = FALSE,
+                                                       row.numbers = FALSE)) +
+  
+   mapview(Collaborations, zcol = c("count"), col.regions = brewer.pal(1, "YlGn"), 
+           legend = FALSE, layer.name = "Collaborations", homebutton = FALSE, 
+           label = "Collaborations",
+           popup = leafpop::popupTable(Collaborations, zcol = c("count"),
+                                                       feature.id = FALSE,
+                                                       row.numbers = FALSE)) +
+  
+  mapview(Compilations, zcol = c("count"), col.regions = brewer.pal(1, "YlGn"), 
+           legend = FALSE, layer.name = "Compilation Contributions", homebutton = FALSE, 
+           label = "Compilation Contributions",
+           popup = leafpop::popupTable(Compilations, zcol = c("count"),
+                                                       feature.id = FALSE,
+                                                       row.numbers = FALSE))
+
+```
+
+### Information
+
+[Curriculum Vitae](CV.pdf "Curriculum Vitae")
+
+```{r}
+
+```
