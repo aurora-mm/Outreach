@@ -102,7 +102,7 @@ popup_iframe_p <- lapply(url_list_p, leafpop:::popupIframe, width = 255, height 
 # Show maps
 mapview(Artists, col.regions = "orange", legend = TRUE, layer.name = "Artist Locations",
           homebutton = FALSE, label = "Artist Location", map.types = "CartoDB.Positron",
-          popup = leafpop::popupTable(Artists, zcol = c("artist", "description", "url"),
+          popup = leafpop::popupTable(Artists, zcol = c("artist", "support_me_by", "url"),
                                                feature.id = FALSE, row.numbers = FALSE)) +
    mapview(Photos, popup = popup_iframe_p, col.regions = "yellow", legend = TRUE, 
           homebutton = FALSE, layer.name = "Cities Visited (Photos)", 
