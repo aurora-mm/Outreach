@@ -1,5 +1,5 @@
 ---
-title: "Outreach"
+title: "Outreach — Creative Dashboard"
 output: 
   flexdashboard::flex_dashboard:
     theme:
@@ -26,7 +26,7 @@ library(RColorBrewer)
 thematic::thematic_rmd()
 
 # Solo album count
-SoloAlbums <- 1
+SoloAlbums <- 7
 
 # Function for processing the compilations sheet
 compilationsProcess <- function(df) {
@@ -61,12 +61,13 @@ loadCountData <- function(filename, sheet, geometry, isComp = FALSE) {
 
 # Function for loading spatial data
 loadSpatData <- function(filename, sheet, crs = 4269) {
-  dfOut <- readxl::read_excel(path = filename, sheet = sheet)
+  dfOut <- readxl::read_excel(path = filename, sheet = sheet) %>% tidyr::drop_na()
   dfOut <- sf::st_as_sf(dfOut, 
                        coords = c("longitude", "latitude"),
                        crs = crs) 
   return(dfOut)
 }
+
 ```
 
 Column {data-width=650 .tabset}
@@ -97,7 +98,7 @@ popup_iframe_t <- lapply(url_list_t, leafpop:::popupIframe, width = 500, height 
 
 # Add embeds to Photos
 url_list_p <- as.list(Photos$url)
-popup_iframe_p <- lapply(url_list_p, leafpop:::popupIframe, width = 255, height = 414)
+popup_iframe_p <- lapply(url_list_p, leafpop:::popupIframe, width = 255, height = 438)
 
 # Show maps
 mapview(Artists, col.regions = "orange", legend = TRUE, layer.name = "Artist Locations",
@@ -137,8 +138,15 @@ mapview(Artists, col.regions = "orange", legend = TRUE, layer.name = "Artist Loc
 
 ### Information
 
+Work in progress...
+
 [Curriculum Vitae](CV.pdf "Curriculum Vitae")
 
 ```{r}
+
+# contributions = solo tracks + parts in international collaborations
+# collaborations = me-centric, only collaborators are counted, not myself. only albums.
+# odd tracks on fiat lux
+# label = countries of origin of artists on albums, no international collabs
 
 ```
