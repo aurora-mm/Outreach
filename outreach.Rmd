@@ -26,7 +26,7 @@ library(RColorBrewer)
 thematic::thematic_rmd()
 
 # Solo album count
-SoloAlbums <- 7
+SoloAlbums <- 8
 
 # Function for processing the compilations sheet
 compilationsProcess <- function(df) {
