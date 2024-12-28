@@ -1,5 +1,5 @@
 ---
-title: "Outreach — Creative Dashboard"
+title: "Outreach"
 output: 
   flexdashboard::flex_dashboard:
     theme:
@@ -16,7 +16,6 @@ output:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
-library(mapview)
 library(leaflet)
 library(sf)
 library(tidyverse)
@@ -24,9 +23,6 @@ library(geodata)
 library(RColorBrewer)
 
 thematic::thematic_rmd()
-
-# Solo album count
-SoloAlbums <- 8
 
 # Function for processing the compilations sheet
 compilationsProcess <- function(df) {
@@ -49,25 +45,24 @@ compilationsProcess <- function(df) {
 # Function for loading count data
 loadCountData <- function(filename, sheet, geometry, isComp = FALSE) {
   dfOut <- readxl::read_excel(path = filename, sheet = sheet)
-  if(isComp == FALSE) {
+  if (isComp == FALSE) {
     dfOut <- table(dfOut$country) %>% as.data.frame()
   } else {
     dfOut <- compilationsProcess(dfOut)
   }
   colnames(dfOut) <- c("country", "count")
-  dfOut <- inner_join(geometry, dfOut, by = "country")
   return(dfOut)
 }
 
 # Function for loading spatial data
 loadSpatData <- function(filename, sheet, crs = 4269) {
   dfOut <- readxl::read_excel(path = filename, sheet = sheet) %>% tidyr::drop_na()
-  dfOut <- sf::st_as_sf(dfOut, 
-                       coords = c("longitude", "latitude"),
-                       crs = crs) 
+  dfOut <- sf::st_as_sf(dfOut,
+    coords = c("longitude", "latitude"),
+    crs = crs
+  ) %>% sf::st_transform("+proj=longlat +datum=WGS84")
   return(dfOut)
 }
-
 ```
 
 Column {data-width=650 .tabset}
@@ -87,66 +82,118 @@ Collaborations <- loadCountData("database.xlsx", "Collaborations", Outreach)
 Label <- loadCountData("database.xlsx", "Label", Outreach)
 Compilations <- loadCountData("database.xlsx", "Compilations", Outreach, isComp = TRUE)
 
+# Calculate solo album count
+SoloAlbums <- nrow(readxl::read_excel(path = "database.xlsx", sheet = "Solo"))
+
+# Produce totals
+Totals <- Collaborations %>%
+  rename(collab_count = count) %>%
+  full_join(Label %>% rename(label_count = count), by = "country") %>%
+  full_join(Compilations %>% rename(comp_count = count), by = "country") %>%
+  mutate(
+    label_count = coalesce(label_count, 0),
+    comp_count = coalesce(comp_count, 0),
+    collab_count = coalesce(collab_count, 0),
+    total_count = label_count + comp_count + collab_count
+  )
+
+# Add geometry to totals
+Totals <- Outreach %>%
+  inner_join(Totals, by = "country")
+
 # Load spatial data (Travel, Artists, Photos)
 Travel <- loadSpatData("database.xlsx", "Travel")
 Artists <- loadSpatData("database.xlsx", "Artists")
 Photos <- loadSpatData("database.xlsx", "Photos")
 
-# Add IA embeds to Travel
-url_list_t <- as.list(Travel$url)
-popup_iframe_t <- lapply(url_list_t, leafpop:::popupIframe, width = 500, height = 30)
-
-# Add embeds to Photos
-url_list_p <- as.list(Photos$url)
-popup_iframe_p <- lapply(url_list_p, leafpop:::popupIframe, width = 255, height = 438)
-
-# Show maps
-mapview(Artists, col.regions = "orange", legend = TRUE, layer.name = "Artist Locations",
-          homebutton = FALSE, label = "Artist Location", map.types = "CartoDB.Positron",
-          popup = leafpop::popupTable(Artists, zcol = c("artist", "support_me_by", "url"),
-                                               feature.id = FALSE, row.numbers = FALSE)) +
-   mapview(Photos, popup = popup_iframe_p, col.regions = "yellow", legend = TRUE, 
-          homebutton = FALSE, layer.name = "Cities Visited (Photos)", 
-          label = "City Visited (Photos)") +
-    
-   mapview(Travel, popup = popup_iframe_t, col.regions = "lightblue", legend = TRUE, 
-          homebutton = FALSE, layer.name = "Cities Visited (Sounds)", 
-          label = "City Visited (Sounds)") +
+# Create the leaflet map
+leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  setView(lng = 10, lat = 50, zoom = 4) %>%
+  # Add shaded polygons for the totals
+  addPolygons(
+    data = Totals,
+    fillColor = ~ colorNumeric("YlGnBu", total_count)(total_count),
+    fillOpacity = 0.3, color = "darkgrey", weight = 1, stroke = TRUE,
+    popup = ~ paste0(
+      "<strong>Country:</strong> ", country,
+      "<br><strong>Label Releases:</strong> ", label_count,
+      "<br><strong>Collaborations:</strong> ", collab_count,
+      "<br><strong>Compilation Contributions:</strong> ", comp_count
+    )
+  ) %>%
   
-   mapview(Label, zcol = c("count"), col.regions = brewer.pal(1, "YlGn"), 
-           legend = FALSE, layer.name = "Label Releases", homebutton = FALSE, 
-           label = "Label Releases",
-           popup = leafpop::popupTable(Label, zcol = c("count"),
-                                                       feature.id = FALSE,
-                                                       row.numbers = FALSE)) +
+  # Add legend
+  addLegend(
+    position = "bottomright",
+    pal = colorNumeric("YlGnBu", Totals$total_count),
+    values = Totals$total_count,
+    title = "Total Outreach",
+    opacity = 0.7
+  ) %>%
   
-   mapview(Collaborations, zcol = c("count"), col.regions = brewer.pal(1, "YlGn"), 
-           legend = FALSE, layer.name = "Collaborations", homebutton = FALSE, 
-           label = "Collaborations",
-           popup = leafpop::popupTable(Collaborations, zcol = c("count"),
-                                                       feature.id = FALSE,
-                                                       row.numbers = FALSE)) +
+  addControl(
+    html = paste0(
+      "<div style='padding: 10px; background: white; border: 1px solid #ccc; border-radius: 4px;'>",
+      "<strong>Total Countries:</strong> ", nrow(Totals),
+      "</div>"
+    ),
+    position = "topright"
+  ) %>%
   
-  mapview(Compilations, zcol = c("count"), col.regions = brewer.pal(1, "YlGn"), 
-           legend = FALSE, layer.name = "Compilation Contributions", homebutton = FALSE, 
-           label = "Compilation Contributions",
-           popup = leafpop::popupTable(Compilations, zcol = c("count"),
-                                                       feature.id = FALSE,
-                                                       row.numbers = FALSE))
-
+  # Add layers for Artists
+  addCircleMarkers(
+    data = Artists,
+    radius = 3, color = "#FF8000", stroke = TRUE, weight = 1, fillOpacity = 0.8,
+    popup = ~ paste0("<img src='", url, "' style='width:243px;height:413px;'>")
+  ) %>%
+  
+  # Add layers for Photos
+  addCircleMarkers(
+    data = Photos,
+    radius = 3, color = "#FFFF00", stroke = TRUE, weight = 1, fillOpacity = 0.8,
+    popup = ~ paste0("<iframe src='", url, "' style='width:255px;height:438px;'></iframe>")
+  ) %>%
+  
+  # Add layers for Travel
+  addCircleMarkers(
+    data = Travel,
+    radius = 3, color = "#00CCCC", stroke = TRUE, weight = 1, fillOpacity = 0.8,
+    popup = ~ paste0("<iframe src='", url, "' style='height:30px;' allow='autoplay'></iframe>")
+  )
 ```
 
 ### Information
 
-Work in progress...
+<script>
+function showSentimentPopup() {
+  const popupContent = `
+    <div style="max-width:600px; text-align:center;">
+      <h4>Sentiment Analysis</h4>
+      <img src="emotion_plot.png" style="width:60%; margin-right:2%;">
+      <img src="wordcloud.png" style="width:60%;">
+    </div>`;
+  const popupWindow = window.open("", "SentimentAnalysis", "width=600,height=800");
+  popupWindow.document.write(popupContent);
+  popupWindow.document.close();
+}
+</script>
 
-[Curriculum Vitae](CV.pdf "Curriculum Vitae")
+This dashboard demonstrates how a global creative outreach and an individual artistic journey can be visualized, integrating multiple dimensions of activity and impact:
 
-```{r}
+* number of albums released via the labels **Nova Beat Estate** (2006–2012) and [Motivational Music](https://www.motivational-music.one) (since 2024) by country;
+* number of international collaborations, including albums and podcasts, since 2005;
+* compilation tracks received from contributors, both solo tracks and parts in international collaborative tracks, since 2020; 
+* geolocated points with detailed artist cards (orange points), showcasing collaborators or peers who opted to be included, enabling discovery and support on their own terms;
+* documented visits to specific cities since 2020 (yellow points for photos, cyan points for field recordings), offering a personal layer to the outreach story.
 
-# contributions = solo tracks + parts in international collaborations
-# collaborations = me-centric, only collaborators are counted, not myself. only albums.
-# odd tracks on fiat lux
-# label = countries of origin of artists on albums, no international collabs
+The dashboard aggregates the first three metrics into a global **outreach score** while visualizing the interplay between geographic outreach, artistic connections, and travel history. It uncovers patterns, such as clustering of outreach and artistic activity, and contextualizes them in a geographic and experiential framework. Additionally, <span style="color:blue; text-decoration:underline; cursor:pointer;" onclick="showSentimentPopup()">sentiment analysis</span> of the [Concepts and Creations](https://paragraph.xyz/@aurora-mm) blog posts provides an emotional perspective on this creative journey. By quantifying sentiment, the dashboard reveals an overwhelmingly positive and inspiring outlook, reinforcing the value of these creative efforts.
 
-```
+This project began as a mental health initiative to address the question, *"Did anything I do creatively matter?"* It has since evolved into a tool for exploring the tangible and intangible impacts of creative work:
+
+* the dashboard places artists on maps, helping them to be discovered and supported on their own terms;
+* it highlights cities' roles in artistic networks, providing an experiential angle by allowing field recordings and photos to immerse viewers in these places. This approach draws inspiration from projects like [Cities and Memory](https://citiesandmemory.com) but operates on a small, highly personal scale;
+* it offers hope and inspiration, demonstrating that it’s possible to make a significant global impact even from a small flat in Eastern Sweden, without factoring in solo albums (currently `r SoloAlbums`, since 2019).
+
+As an [open-source](https://github.com/aurora-mm/Outreach) project, this dashboard is not just a personal narrative but a template for others to visualize their own creative journeys. Its design allows for easy adaptation to measure and map activities, connections and travels, enabling anyone to tell their story in an engaging and meaningful way.
+
