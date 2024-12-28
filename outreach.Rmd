@@ -170,8 +170,8 @@ function showSentimentPopup() {
   const popupContent = `
     <div style="max-width:600px; text-align:center;">
       <h4>Sentiment Analysis</h4>
-      <img src="emotion_plot.png" style="width:60%; margin-right:2%;">
-      <img src="wordcloud.png" style="width:60%;">
+      <img src="https://permagate.io/u8nu79ZnwCi8pyuwvduwSkZp7h4gf76_zqdq01s1SGA" style="width:60%; margin-right:2%;">
+      <img src="https://permagate.io/vEwCaZlpe7-zx6piILQ89MtBJPrt3CbGIizpx788dtc" style="width:60%;">
     </div>`;
   const popupWindow = window.open("", "SentimentAnalysis", "width=600,height=800");
   popupWindow.document.write(popupContent);
