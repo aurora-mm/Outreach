@@ -45,7 +45,7 @@ Open `outreach.Rmd` in [RStudio](https://posit.co/products/open-source/rstudio) 
 ## Customization
 
 * modify `database.xlsx` and `outreach.Rmd` to include your own creative metrics, such as collaborations, albums, or travel records;
-* use the scripts in the `scripts/` folder to perform the dashboard maintenance and sentiment analysis.
+* use the scripts in the `scripts/` folder to perform dashboard maintenance and sentiment analysis.
 
 For detailed instructions on how to add field recordings and photos to the dashboard, refer to the README file in the `scripts/` folder.
 
