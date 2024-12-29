@@ -29,7 +29,7 @@ Update the relevant sheet in `database.xlsx` for new music:
 
 ## Photos
 
-* Use Canva to design a photo collage, download the collage as a PDF, upload the PDF to [Arweave](https://arweave.org).
+* Use [Canva](https://www.canva.com) to design a photo collage, download the collage as a PDF, upload the PDF to [ArDrive](https://ardrive.io).
 
 * Find and document the coordinates for the location, add the coordinates and Arweave link to the **Photos** sheet in `database.xlsx`.
 
@@ -37,7 +37,7 @@ Update the relevant sheet in `database.xlsx` for new music:
 
 ## Artist Cards
 
-* Use Canva to design the artist card, download the collage as a PNG, upload the PNG to Arweave.
+* Use Canva to design the artist card, download the collage as a PNG, upload the PNG to ArDrive.
 
 * Find and document the coordinates for the artist, add the coordinates and Arweave link to the **Artist** sheet in `database.xlsx`.
 
@@ -45,7 +45,7 @@ Update the relevant sheet in `database.xlsx` for new music:
 
 ## Sentiment Analysis
 
-* Run `scrape_arweave_data.py` and `sentiment_analysis.R` to produce PNG images, upload the images to Arweave. 
+* Run `scrape_arweave_data.py` and `sentiment_analysis.R` to produce PNG images, upload the images to ArDrive. 
 
 * Update the dashboard file, reknit the dashboard and push the changes to GitHub.
 
