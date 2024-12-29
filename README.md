@@ -26,11 +26,17 @@ As an open-source project, this dashboard is not just a personal narrative but a
 
 `outreach.Rmd`: The source [R Markdown](https://rmarkdown.rstudio.com) document.
 
+`database.xlsx`: The dataset for the dashboard.
+
 `scripts/`: Contains scripts (Python and R) for dashboard maintenance and sentiment analysis.
 
 # Dependencies
 
-`flexdashboard`, `leaflet`, `sf`, `tidyverse`, `geodata`, `RColorBrewer` (dashboard)
+`flexdashboard`, `leaflet`, `sf`, `tidyverse`, `geodata`, `RColorBrewer` (R, dashboard)
+
+`tidyverse`, `tidytext`, `tm`, `wordcloud`, `SnowballC`, `textdata`, `udpipe` (R, script)
+
+`os`, `re`, `requests`, `json`, `bs4` (Python, scripts)
 
 # Usage
 
@@ -39,7 +45,7 @@ Open `outreach.Rmd` in [RStudio](https://posit.co/products/open-source/rstudio) 
 ## Customization
 
 * modify `database.xlsx` and `outreach.Rmd` to include your own creative metrics, such as collaborations, albums, or travel records;
-* use the scripts in the `scripts/` folder to replace the [Arweave](https://arweave.org) gateway, scrape the blog and perform sentiment analysis.
+* use the scripts in the `scripts/` folder to perform the dashboard maintenance and sentiment analysis.
 
 For detailed instructions on how to add field recordings and photos to the dashboard, refer to the README file in the `scripts/` folder.
 
