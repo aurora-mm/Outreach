@@ -1,1 +1,60 @@
-Placeholder
+# Overview
+
+This folder contains scripts (Python and R) for performing dashboard maintenance and sentiment analysis. Additionally, it provides detailed instructions for updating dashboard data and adding field recordings, photos, and artist cards to the dashboard.
+
+# Workflow
+
+## Adding Music Releases
+
+Update the relevant sheet in `database.xlsx` for new music:
+
+* **Label**: Add new label releases.
+* **Collaborations**: Document collaborations.
+* **Compilations**: Include compilation tracks.
+* **Solo**: Record solo album entries.
+
+## Field Recordings
+
+* Prepare the MP3 file. Ensure the file conforms to the following standards: correct format, matching reference standards used in existing recordings; `title` (the place where it was recorded), `artist` (LR Friberg), `album` (Cities Visited), `genre`  (Field Recordings), `date` tags filled in, and a cover image present;
+
+* If you're unsure whether the file meets these standards, use `convert_mp3.py` to format the MP3 properly;
+
+* Run `validate_mp3.py` to ensure the file meets the required standards; 
+
+* Upload the validated MP3 file to the [Internet Archive](https://www.archive.org/details/cities-visited-field-recordings);
+
+* Find and document the coordinates for the location, add the coordinates and Internet Archive link to the **Travel** sheet in `database.xlsx`.
+
+* Reknit the dashboard and push the changes to GitHub.
+
+## Photos
+
+* Use Canva to design a photo collage, download the collage as a PDF, upload the PDF to [Arweave](https://arweave.org).
+
+* Find and document the coordinates for the location, add the coordinates and Arweave link to the **Photos** sheet in `database.xlsx`.
+
+* Reknit the dashboard and push the changes to GitHub.
+
+## Artist Cards
+
+* Use Canva to design the artist card, download the collage as a PNG, upload the PNG to Arweave.
+
+* Find and document the coordinates for the artist, add the coordinates and Arweave link to the **Artist** sheet in `database.xlsx`.
+
+* Reknit the dashboard and push the changes to GitHub.
+
+## Sentiment Analysis
+
+* Run `scrape_arweave_data.py` and `sentiment_analysis.R` to produce PNG images, upload the images to Arweave. 
+
+* Update the dashboard file, reknit the dashboard and push the changes to GitHub.
+
+# Known Issues
+
+Occasionally, the validation process for the cover image fails. In such cases, simply re-run `validate_mp3.py`. The script will automatically attach `artwork.png` to ensure the cover image is valid.
+
+If you encounter issues with the Arweave gateway, run `replace_gateway.py` to update it to [your preferred gateway](https://network-portal.app/#/gateways).
+
+# Author
+
+Linn Friberg
