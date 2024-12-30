@@ -47,7 +47,7 @@ Update the relevant sheet in `database.xlsx` for new music:
 
 * Run `scrape_arweave_data.py` and `sentiment_analysis.R` to produce PNG images, upload the images to ArDrive;
 
-* If the blog isn't available anymore, run `scrape_arweave_and_archive.py` to fetch and archive blog posts from the Arweave transaction list (`arweave_transactions.txt`);
+* If the blog isn't available anymore, run `scrape_arweave_and_archive.py` to fetch and archive blog posts from the Arweave transaction list, `arweave_transactions.txt`;
 
 * Update the dashboard file, reknit the dashboard and push the changes to GitHub.
 
