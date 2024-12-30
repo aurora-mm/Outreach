@@ -36,7 +36,7 @@ As an open-source project, this dashboard is not just a personal narrative but a
 
 `tidyverse`, `tidytext`, `tm`, `wordcloud`, `SnowballC`, `textdata`, `udpipe` (R, script)
 
-`os`, `re`, `requests`, `json`, `bs4` (Python, scripts)
+`os`, `re`, `requests`, `json`, `bs4`, `openpyxl` (Python, scripts)
 
 # Usage
 
